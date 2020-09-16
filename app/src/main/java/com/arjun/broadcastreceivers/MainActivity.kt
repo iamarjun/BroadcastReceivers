@@ -1,14 +1,19 @@
 package com.arjun.broadcastreceivers
 
 import android.Manifest
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    private val receiver by lazy { MyBroadcastReceiver() }
+    private val intentFilter by lazy { IntentFilter("android.provider.Telephony.SMS_RECEIVED") }
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
 
         if (it) {
@@ -24,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val myIntent by lazy { Intent() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +52,16 @@ class MainActivity : AppCompatActivity() {
             requestPermissionLauncher.launch(Manifest.permission.RECEIVE_SMS)
         }
 
-
+//        register.setOnClickListener {  }
     }
 
+    override fun onStart() {
+        super.onStart()
+        registerReceiver(receiver, intentFilter)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unregisterReceiver(receiver)
+    }
 }
