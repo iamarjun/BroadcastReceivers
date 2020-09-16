@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val receiver by lazy { MyBroadcastReceiver() }
-    private val intentFilter by lazy { IntentFilter("android.provider.Telephony.SMS_RECEIVED") }
+    private val intentFilter by lazy { IntentFilter("foo.bar") }
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
 
         if (it) {
@@ -45,6 +45,11 @@ class MainActivity : AppCompatActivity() {
 //            showInContextUI(...);
 //        }
 
+            myIntent.apply {
+                action = "foo.bar"
+                addCategory(Intent.CATEGORY_DEFAULT)
+            }
+
 
         } else {
             // You can directly ask for the permission.
@@ -52,11 +57,14 @@ class MainActivity : AppCompatActivity() {
             requestPermissionLauncher.launch(Manifest.permission.RECEIVE_SMS)
         }
 
-//        register.setOnClickListener {  }
+        register.setOnClickListener {
+            sendBroadcast(myIntent)
+        }
     }
 
     override fun onStart() {
         super.onStart()
+        intentFilter.addCategory(Intent.CATEGORY_DEFAULT)
         registerReceiver(receiver, intentFilter)
     }
 
