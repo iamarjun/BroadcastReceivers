@@ -12,7 +12,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val receiver by lazy { MyBroadcastReceiver() }
+    private val receiver1 by lazy { BroadcastReceiver1() }
+    private val receiver2 by lazy { BroadcastReceiver2() }
     private val intentFilter by lazy { IntentFilter("foo.bar") }
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
 
@@ -58,18 +59,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         register.setOnClickListener {
-            sendBroadcast(myIntent)
+            sendOrderedBroadcast(myIntent, null)
         }
     }
 
     override fun onStart() {
         super.onStart()
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT)
-        registerReceiver(receiver, intentFilter)
+        intentFilter.priority = 2
+        registerReceiver(receiver1, intentFilter)
+        intentFilter.priority = 1
+        registerReceiver(receiver2, intentFilter)
     }
 
     override fun onStop() {
         super.onStop()
-        unregisterReceiver(receiver)
+        unregisterReceiver(receiver1)
+        unregisterReceiver(receiver2)
+    }
+
+    companion object {
+        const val BREAD_CRUMB = "BreadCrumb"
     }
 }
