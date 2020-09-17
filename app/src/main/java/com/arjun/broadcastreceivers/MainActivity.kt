@@ -1,6 +1,8 @@
 package com.arjun.broadcastreceivers
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -9,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
@@ -59,7 +62,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         register.setOnClickListener {
-            sendOrderedBroadcast(myIntent, null)
+            sendOrderedBroadcast(myIntent, null, object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    val bundle = getResultExtras(true)
+                    var trail = bundle.getString(MainActivity.BREAD_CRUMB)
+                    trail = if (trail == null)
+                        "Start -> $TAG"
+                    else
+                        "$trail -> $TAG"
+
+                    bundle.putString(BREAD_CRUMB, trail)
+                    Timber.d(trail)
+
+                }
+
+            }, null, 0, null, null)
         }
     }
 
@@ -80,5 +97,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val BREAD_CRUMB = "BreadCrumb"
+        private val TAG = MainActivity::class.java.simpleName
     }
 }
